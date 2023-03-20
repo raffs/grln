@@ -44,8 +44,6 @@ const char *get_color()
 	return color;
 }
 
-
-
 int run_version(void)
 {
 	printf("version v0.1.0");
@@ -62,6 +60,7 @@ int run_help(void)
 	       "\n"
 	       "    -v | --version:  display grln version\n"
 	       "    -h | --help:     show this message\n"
+	       "    -c | --column    define which column to use for color-grouping (default: 1)\n"
 	       "\n"
 	       "EXAMPLES:\n"
 	       "\n"
@@ -69,16 +68,21 @@ int run_help(void)
 	return 0;
 }
 
-int run_grln()
+struct options {
+	int column;
+};
+
+int run_grln(struct options opts)
 {
 	size_t len = 0;
 	ssize_t read = 0;
 	char *line = NULL;
-	char *word = NULL;
-	struct hashmap map;
+	struct strlist *terms = NULL;
+	struct hashmap map = { 0 };
 
 	hashmap_init(&map);
 	do {
+		const char *term;
 		const char *color;
 		struct hashmap_entry *entry;
 
@@ -86,14 +90,15 @@ int run_grln()
 		if (read < 0)
 			break;
 
-		word = split_line(line, ' ');
-		if (!word)
+		terms = strlist_split(line, ' ');
+		if (!terms)
 			continue; /* let's just skip for now */
 
-		entry = hashmap_get(&map, word);
+		term = strlist_get(terms, opts.column);
+		entry = hashmap_get(&map, term);
 		if (!entry) {
 			color = get_color();
-			entry = hashmap_entry_init(word, color);
+			entry = hashmap_entry_init(term, color);
 			hashmap_add(&map, entry);
 		}
 
@@ -108,15 +113,18 @@ int run_grln()
 
 int main(int argc, char* argv[])
 {
+	struct options opts = { 0 };
+
 	static struct option long_options[] = {
-		{"version", no_argument, 0, 'v'},
-		{"help",    no_argument, 0, 'h'},
-		{0,         0,           0,   0},
+		{"version", no_argument,       0, 'v'},
+		{"help",    no_argument,       0, 'h'},
+		{"column",  required_argument, 0, 'c'},
+		{0,         0,                 0,   0},
 	};
 
 	for (;;) {
 		int option_index = 0;
-		int c = getopt_long(argc, argv, "v", long_options, &option_index);
+		int c = getopt_long(argc, argv, "vhc:", long_options, &option_index);
 		if (c == -1)
 			break;
 		switch (c) {
@@ -124,8 +132,19 @@ int main(int argc, char* argv[])
 			return run_help();
 		case 'v':
 			return run_version();
+
+		case 'c':
+			opts.column = atoi(optarg);
+			if (opts.column < 0)
+				die("ERROR: -c %d is not valid column number.");
+			else if (opts.column == 0) {
+				printf("WARN: -k 0 is not valid, using 1 instead");
+				opts.column = 0;
+			} else
+				opts.column--;
+			break;
 		}
 	}
 
-	return run_grln();
+	return run_grln(opts);
 }
