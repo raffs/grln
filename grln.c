@@ -2,6 +2,7 @@
 
 #include "grln.h"
 #include "hashmap.h"
+#include "strlist.h"
 
 #define COLOR_RESET "\e[0m"
 
@@ -34,49 +35,6 @@ static const char *COLOR_TABLE[] = {
 static unsigned int color_clock = 0;
 
 #define print_color(s, color) printf("%s%s%s", color, s, COLOR_RESET)
-
-/*
- * Return ' ' for any white-space chararecter or return the char itself. This can be
- * used to normalize spaces when comparing chars.
- */
-char norm_space(char c)
-{
-	if (isspace(c))
-		return ' ';
-	return c;
-}
-
-/*
- * Right now: Only return the first word, but it should return a list
- * of words given the right delimiter
- */
-char *split_line(char *s, int delim)
-{
-	char *word = NULL;
-	int cutpos = -1;
-	int word_started = 0;
-
-	for (char *c = s; *s; c++) {
-		/* ignore initial white-space chars */
-		if (isspace(*c) && !word_started)
-			continue;
-		word_started = 1;
-
-		if (norm_space(*c) == delim) {
-			cutpos = c - s;
-			break;
-		}
-	}
-
-	if (cutpos > -1) {
-		word = malloc((cutpos + 1) * sizeof(char));
-		memcpy(word, s, cutpos);
-		word[cutpos + 1] = '\0';
-	}
-
-	return word;
-}
-
 
 const char *get_color()
 {

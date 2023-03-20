@@ -3,6 +3,7 @@ TARGET = grln
 SRCS = grln.c
 SRCS += wrappers.c
 SRCS += hashmap.c
+SRCS += strlist.c
 
 CFLAGS = -g -O3 -Wall -std=c11
 
