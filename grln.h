@@ -16,5 +16,7 @@ void die(char *fmt, ...);
 
 /* dealing with memory allocation */
 void *xmalloc(size_t size);
+void *xrealloc(void *ptr, size_t size);
+void *xcalloc(size_t nmemb, size_t size);
 
 #endif

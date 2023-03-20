@@ -25,7 +25,25 @@ void *xmalloc(size_t size)
 {
 	void *d = malloc(size);
 	if (!d)
-		die("OutOfMemory");
+		die("OutOfMemory\n");
+
+	return d;
+}
+
+void *xrealloc(void *ptr, size_t size)
+{
+	void *d = realloc(ptr, size);
+	if (!d)
+		die("OutOfMemory\n");
+
+	return d;
+}
+
+void *xcalloc(size_t nmemb, size_t size)
+{
+	void *d = calloc(nmemb, size);
+	if (!d)
+		die("OutOfMemory\n");
 
 	return d;
 }
