@@ -36,7 +36,7 @@ void strlist_add(struct strlist *list, char *str)
 char *strlist_get(struct strlist *list, int index)
 {
 	if (index >= list->length)
-		BUG("strlist_get: Out of bound array access");
+	        return NULL;
 
 	return list->strs[index];
 }

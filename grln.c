@@ -95,6 +95,11 @@ int run_grln(struct options opts)
 			continue; /* let's just skip for now */
 
 		term = strlist_get(terms, opts.column);
+		if (!term) {
+			printf("%s", line);
+			continue;
+		}
+
 		entry = hashmap_get(&map, term);
 		if (!entry) {
 			color = get_color();
