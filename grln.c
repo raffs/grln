@@ -61,6 +61,7 @@ int run_help(void)
 	       "    -v | --version:  display grln version\n"
 	       "    -h | --help:     show this message\n"
 	       "    -c | --column    define which column to use for color-grouping (default: 1)\n"
+	       "    -d | --delimiter define a field delimiter (default: " ")\n"
 	       "\n"
 	       "EXAMPLES:\n"
 	       "\n"
@@ -70,6 +71,7 @@ int run_help(void)
 
 struct options {
 	int column;
+	int delim;
 };
 
 int run_grln(struct options opts)
@@ -90,7 +92,7 @@ int run_grln(struct options opts)
 		if (read < 0)
 			break;
 
-		terms = strlist_split(line, ' ');
+		terms = strlist_split(line, opts.delim);
 		if (!terms)
 			continue; /* let's just skip for now */
 
@@ -121,15 +123,16 @@ int main(int argc, char* argv[])
 	struct options opts = { 0 };
 
 	static struct option long_options[] = {
-		{"version", no_argument,       0, 'v'},
-		{"help",    no_argument,       0, 'h'},
-		{"column",  required_argument, 0, 'c'},
-		{0,         0,                 0,   0},
+		{"version",   no_argument,       0, 'v'},
+		{"help",      no_argument,       0, 'h'},
+		{"column",    required_argument, 0, 'c'},
+		{"delimiter", required_argument, 0, 'd'},
+		{0,           0,                 0,   0},
 	};
 
 	for (;;) {
 		int option_index = 0;
-		int c = getopt_long(argc, argv, "vhc:", long_options, &option_index);
+		int c = getopt_long(argc, argv, "vhc:d:", long_options, &option_index);
 		if (c == -1)
 			break;
 		switch (c) {
@@ -148,6 +151,16 @@ int main(int argc, char* argv[])
 			} else
 				opts.column--;
 			break;
+		case 'd':
+			size_t n = strlen(optarg);
+			if (n > 1) {
+				fprintf(stderr, "delimiter '%s' is not valid, it should be only one char\n", optarg);
+				exit(1);
+			}
+			else if (n == 1)
+				opts.delim = *optarg;
+			else
+				opts.delim = ' ';
 		}
 	}
 
