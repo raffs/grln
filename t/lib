@@ -1,0 +1,82 @@
+#!/bin/bash
+
+test_number=0
+
+export PATH="../:$PATH"
+
+function cleanup()
+{
+    find . -regex './grlntest-.*' -type d | \
+	xargs rm -rf
+}
+
+trap cleanup EXIT
+
+function print_success()
+{
+    tfile=$0
+    msg="$*"
+    echo -e "\e[34m$tfile #$test_number: $msg .. ok\e[0m"
+}
+
+function print_failure()
+{
+    tfile=$0
+    msg="$*"
+    echo -e "\e[31m$tfile #$test_number: $msg .. failed\e[0m"
+}
+
+
+function test_expect_success()
+{
+    test_number=$(($test_number + 1))
+
+    tname="${1}"
+    tcode="${2}"
+
+    DIR=$(mktemp --directory --tmpdir=$PWD grlntest-XXXXXXX)
+    if [[ $? -ne 0 ]]; then
+	echo "Unable to create temporary dir for running tests"
+	exit 1
+    fi
+
+    (
+	cd $DIR
+	OUT="$(echo $tcode | bash -E 2>&1)"
+	if [[ $? -eq 0 ]]; then
+	    print_success $tname
+	else
+	    print_failure $tcode
+	    echo "Test Output:"
+	    echo "$OUT" | sed 's/^/   /'
+	    echo
+	fi
+    )
+}
+
+# TODO: Is just duplicated the code from `test_expect_success`, but
+# it really shouldn't :).
+function test_expect_failure()
+{
+
+    test_number=$(($test_number + 1))
+
+    tname="${1}"
+    tcode="${2}"
+
+    DIR=$(mktemp --directory --tmpdir=$PWD grlntest-XXXXXXX)
+    if [[ $? -ne 0 ]]; then
+	echo "Unable to create temporary dir for running tests"
+	exit 1
+    fi
+
+    OUT="$(echo $tcode | bash -E 2>&1)"
+    if [[ $? -ne 0 ]]; then
+	print_failure $tname
+	echo "Test Output:"
+	echo "$OUT" | sed 's/^/   /'
+	echo
+    else
+	print_success "$tname"
+    fi
+}

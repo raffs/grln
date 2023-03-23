@@ -1,0 +1,4 @@
+grln
+*.o
+*.a
+t/grlntest-*
