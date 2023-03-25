@@ -71,13 +71,13 @@ int run_help(void)
 
 struct options {
 	int column;
-	int delim;
+	const char *delim;
 };
 
 static void options_defaults(struct options *opts)
 {
 	opts->column = 0;
-	opts->delim = ' ';
+	opts->delim = " ";
 }
 
 int run_grln(struct options opts)
@@ -160,15 +160,9 @@ int main(int argc, char* argv[])
 				opts.column--;
 			break;
 		case 'd':
-			size_t n = strlen(optarg);
-			if (n > 1) {
-				fprintf(stderr, "delimiter '%s' is not valid, it should be only one char\n", optarg);
-				exit(1);
-			}
-			else if (n == 1)
-				opts.delim = *optarg;
-			else
-				opts.delim = ' ';
+			size_t len = strlen(optarg);
+			if (len)
+				opts.delim = optarg;
 		}
 	}
 

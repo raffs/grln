@@ -21,6 +21,6 @@ char *strlist_get(struct strlist *list, int index);
  * Split a the string `s` into n sub-strings, using `delim` as the
  * splitted character.
  */
-struct strlist *strlist_split(char *s, int delim);
+struct strlist *strlist_split(char *s, const char *delim);
 
 #endif
