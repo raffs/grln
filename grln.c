@@ -74,6 +74,12 @@ struct options {
 	int delim;
 };
 
+static void options_defaults(struct options *opts)
+{
+	opts->column = 0;
+	opts->delim = ' ';
+}
+
 int run_grln(struct options opts)
 {
 	size_t len = 0;
@@ -129,6 +135,8 @@ int main(int argc, char* argv[])
 		{"delimiter", required_argument, 0, 'd'},
 		{0,           0,                 0,   0},
 	};
+
+	options_defaults(&opts);
 
 	for (;;) {
 		int option_index = 0;
