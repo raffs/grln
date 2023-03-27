@@ -47,3 +47,24 @@ void *xcalloc(size_t nmemb, size_t size)
 
 	return d;
 }
+
+/*
+ * The same as strtol(), except that we die in buffer overflows and not
+ * valid numbers. IOW, same as strol(), but over-dramatic.
+ */
+long xstrtol(const char *nptr, char **endptr, int base)
+{
+	long n = strtol(nptr, endptr, base);
+
+	switch (errno) {
+	case EINVAL:
+		die("ERROR: value '%s' is not a valid number", nptr);
+
+	case ERANGE:
+		if (n == LONG_MIN)
+			die("ERROR: Value '%s' underflow\n", nptr);
+		die("ERROR: Value '%s' overflows\n", nptr);
+	}
+
+	return n;
+}

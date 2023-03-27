@@ -150,19 +150,17 @@ int main(int argc, char* argv[])
 			return run_version();
 
 		case 'c':
-			opts.column = atoi(optarg);
-			if (opts.column < 0)
-				die("ERROR: -c %d is not valid column number.");
-			else if (opts.column == 0) {
-				printf("WARN: -k 0 is not valid, using 1 instead");
-				opts.column = 0;
-			} else
-				opts.column--;
+			int coln = xstrtol(optarg, NULL, 10);
+			if (coln < 0)
+				die("value '%d' is negative and not support\n", coln);
+			else if (coln > 0)
+				opts.column = coln - 1;
 			break;
 		case 'd':
 			size_t len = strlen(optarg);
 			if (len)
 				opts.delim = optarg;
+			break;
 		}
 	}
 
